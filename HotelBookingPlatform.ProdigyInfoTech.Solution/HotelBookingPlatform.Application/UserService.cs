@@ -29,7 +29,7 @@ namespace HotelBookingPlatform.Application.Services
         {
             var user = await _unitOfWork.Repository<User>().GetByIdAsync(id);
             if (user == null)
-                return ServiceResult<User>.Failure("User not found.");
+                return ServiceResult<User>.Failure();
 
             return ServiceResult<User>.Success(user);
         }
@@ -38,13 +38,13 @@ namespace HotelBookingPlatform.Application.Services
         {
             // Validation
             if (string.IsNullOrWhiteSpace(user.Name))
-                return ServiceResult<User>.Failure("Name is required.");
+                return ServiceResult<User>.Failure();
 
             if (!IsValidEmail(user.Email))
-                return ServiceResult<User>.Failure("Invalid email format.");
+                return ServiceResult<User>.Failure();
 
             if (user.Age <= 0)
-                return ServiceResult<User>.Failure("Age must be greater than 0.");
+                return ServiceResult<User>.Failure();
 
             await _unitOfWork.Repository<User>().AddAsync(user);
             await _unitOfWork.CompleteAsync();
@@ -56,17 +56,17 @@ namespace HotelBookingPlatform.Application.Services
         {
             var user = await _unitOfWork.Repository<User>().GetByIdAsync(id);
             if (user == null)
-                return ServiceResult<User>.Failure("User not found.");
+                return ServiceResult<User>.Failure();
 
             // Validation
             if (string.IsNullOrWhiteSpace(updatedUser.Name))
-                return ServiceResult<User>.Failure("Name is required.");
+                return ServiceResult<User>.Failure();
 
             if (!IsValidEmail(updatedUser.Email))
-                return ServiceResult<User>.Failure("Invalid email format.");
+                return ServiceResult<User>.Failure();
 
             if (updatedUser.Age <= 0)
-                return ServiceResult<User>.Failure("Age must be greater than 0.");
+                return ServiceResult<User>.Failure();
 
             // Update fields
             user.Name = updatedUser.Name;
@@ -83,12 +83,12 @@ namespace HotelBookingPlatform.Application.Services
         {
             var user = await _unitOfWork.Repository<User>().GetByIdAsync(id);
             if (user == null)
-                return ServiceResult<bool>.Failure("User not found.");
+                return ServiceResult<bool>.Failure();
 
             await _unitOfWork.Repository<User>().DeleteAsync(user.Id);
             await _unitOfWork.CompleteAsync();
 
-            return ServiceResult<bool>.Success(true, "User deleted successfully.");
+            return ServiceResult<bool>.Success(true);
         }
 
         private bool IsValidEmail(string email)
