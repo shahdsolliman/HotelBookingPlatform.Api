@@ -1,5 +1,6 @@
-
+using DotNetEnv;
 using HotelBookingPlatform.APIs.Extensions;
+using HotelBookingPlatform.Infrastructure.Data;
 
 namespace HotelBookingPlatform.APIs
 {
@@ -9,11 +10,15 @@ namespace HotelBookingPlatform.APIs
         {
             var webApplicationBuilder = WebApplication.CreateBuilder(args);
 
+            // Load environment variables
+            Env.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
+
             webApplicationBuilder.Services.AddApplicationServices(webApplicationBuilder.Configuration);
 
             var app = webApplicationBuilder.Build();
             await app.ConfigureMiddleWaresAsync();
-            
+
+
             app.Run();
         }
     }

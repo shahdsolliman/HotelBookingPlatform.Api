@@ -73,7 +73,7 @@ namespace HotelBookingPlatform.Application.Services
             user.Email = updatedUser.Email;
             user.Age = updatedUser.Age;
 
-            await _unitOfWork.Repository<User>().UpdateAsync(user);
+            _unitOfWork.Repository<User>().Update(user);
             await _unitOfWork.CompleteAsync();
 
             return ServiceResult<User>.Success(user);
@@ -85,7 +85,7 @@ namespace HotelBookingPlatform.Application.Services
             if (user == null)
                 return ServiceResult<bool>.Failure();
 
-            await _unitOfWork.Repository<User>().DeleteAsync(user.Id);
+            _unitOfWork.Repository<User>().Delete(user);
             await _unitOfWork.CompleteAsync();
 
             return ServiceResult<bool>.Success(true);
