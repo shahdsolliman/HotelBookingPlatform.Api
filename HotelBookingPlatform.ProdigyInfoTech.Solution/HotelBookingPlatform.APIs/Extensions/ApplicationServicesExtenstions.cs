@@ -1,11 +1,15 @@
-﻿using HotelBookingPlatform.Application.Services;
-using HotelBookingPlatform.Application.Services.Contract;
+﻿using HotelBookingPlatform.Application;
+using HotelBookingPlatform.Application.Services;
 using HotelBookingPlatform.Core;
+using HotelBookingPlatform.Core.Entities.Identity;
 using HotelBookingPlatform.Core.Repositories.Contract;
+using HotelBookingPlatform.Core.Services.Contract;
 using HotelBookingPlatform.Infrastructure;
 using HotelBookingPlatform.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using SnapShop.API.Errors;
 
 namespace HotelBookingPlatform.APIs.Extensions
@@ -43,7 +47,7 @@ namespace HotelBookingPlatform.APIs.Extensions
         {
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
-            services.AddScoped(typeof(IUserService), typeof(UserService));
+            services.AddScoped(typeof(ITokenService), typeof(TokenService));
   
             return services;
         }

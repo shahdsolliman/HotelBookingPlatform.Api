@@ -8,16 +8,17 @@ namespace HotelBookingPlatform.APIs
     {
         public static async Task Main(string[] args)
         {
-            var webApplicationBuilder = WebApplication.CreateBuilder(args);
 
             // Load environment variables
             Env.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
 
-            webApplicationBuilder.Services.AddApplicationServices(webApplicationBuilder.Configuration);
+            var webApplicationBuilder = WebApplication.CreateBuilder(args);
+
+            webApplicationBuilder.Services.AddApplicationServices(webApplicationBuilder.Configuration)
+                .AddIdentityServices();
 
             var app = webApplicationBuilder.Build();
             await app.ConfigureMiddleWaresAsync();
-
 
             app.Run();
         }
