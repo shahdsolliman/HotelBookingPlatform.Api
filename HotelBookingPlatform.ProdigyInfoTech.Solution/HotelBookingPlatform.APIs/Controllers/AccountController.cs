@@ -1,4 +1,5 @@
 ﻿using HotelBookingPlatform.APIs.DTOs;
+using HotelBookingPlatform.APIs.Helpers;
 using HotelBookingPlatform.Core.Entities.Identity;
 using HotelBookingPlatform.Core.Services.Contract;
 using Microsoft.AspNetCore.Authorization;
@@ -61,18 +62,23 @@ namespace HotelBookingPlatform.APIs.Controllers
             });
         }
 
-        //[Authorize]
-        //[HttpGet] //GET: /api/account
-        //public async Task<ActionResult<UserDto>> GetCurrentUser()
-        //{
-        //    var user = await _userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
-        //    return Ok(new UserDto()
-        //    {
-        //        DisplayName = user.DisplayName,
-        //        Email = user.Email,
-        //        Token = await _tokenService.CreateToken(user, _userManager)
-        //    });
-        //}
+        [CachedAttribute(60)]
+        [Authorize]
+        [HttpGet] //GET: /api/account
+        public async Task<ActionResult<UserDto>> GetCurrentUser()
+        {
+            var user = await _userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email));
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            if (string.IsNullOrEmpty(email))
+                return Unauthorized("Email claim not found");
+
+            return Ok(new UserDto()
+            {
+                DisplayName = user.DisplayName,
+                Email = user.Email,
+                Token = await _tokenService.CreateToken(user, _userManager)
+            });
+        }
 
     }
 }

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SnapShop.API.Errors;
+using StackExchange.Redis;
 
 namespace HotelBookingPlatform.APIs.Extensions
 {
@@ -24,8 +25,8 @@ namespace HotelBookingPlatform.APIs.Extensions
             services.AddDbContextServices();
             //services.AddAutoMapperServices();
             services.ConfigureInValidResponseServices();
-            //services.AddRedisServices(configuration);
-            
+            services.AddRedisServices(configuration);
+
 
             return services;
         }
@@ -48,7 +49,8 @@ namespace HotelBookingPlatform.APIs.Extensions
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
             services.AddScoped(typeof(ITokenService), typeof(TokenService));
-  
+            services.AddScoped<IResponseCacheService, ResponseCacheService>();
+
             return services;
         }
         private static IServiceCollection ConfigureInValidResponseServices(this IServiceCollection services)
@@ -79,6 +81,15 @@ namespace HotelBookingPlatform.APIs.Extensions
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
+            return services;
+        }
+        private static IServiceCollection AddRedisServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSingleton<IConnectionMultiplexer>(s =>
+            {
+                var connectionString = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING");
+                return ConnectionMultiplexer.Connect(connectionString);
+            });
             return services;
         }
 
