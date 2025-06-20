@@ -1,4 +1,6 @@
 ﻿using HotelBookingPlatform.Core.Entities;
+using HotelBookingPlatform.Core.Entities.Business;
+using HotelBookingPlatform.Core.Specifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +11,11 @@ namespace HotelBookingPlatform.Core.Repositories.Contract
 {
     public interface IGenericRepository<T> where T : BaseEntity
     {
-        Task<IEnumerable<T>> GetAllAsync();
+        Task<IReadOnlyList<T>> GetAllAsync();
+        Task<IReadOnlyList<T>> GetAsyncWithSpec(ISpecifications<T> spec);
         Task<T?> GetByIdAsync(Guid id);
         Task AddAsync(T entity);
-        Task<bool> UpdateAsync(T entity);
-        Task<bool> DeleteAsync(Guid id);
+        void Update(T entity);
+        void Delete(T entity);
     }
 }

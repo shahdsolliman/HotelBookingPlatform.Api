@@ -1,10 +1,18 @@
-﻿using HotelBookingPlatform.Application.Services;
-using HotelBookingPlatform.Application.Services.Contract;
+﻿using HotelBookingPlatform.APIs.Helpers;
+using HotelBookingPlatform.Application;
 using HotelBookingPlatform.Core;
+using HotelBookingPlatform.Core.Entities.Identity;
 using HotelBookingPlatform.Core.Repositories.Contract;
+using HotelBookingPlatform.Core.Services.Contract;
 using HotelBookingPlatform.Infrastructure;
+using HotelBookingPlatform.Infrastructure.Data;
+using HotelBookingPlatform.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using SnapShop.API.Errors;
+using StackExchange.Redis;
 
 namespace HotelBookingPlatform.APIs.Extensions
 {
@@ -15,11 +23,12 @@ namespace HotelBookingPlatform.APIs.Extensions
             services.AddBuiltInServices();
             services.AddSwaggerServices();
             services.AddUserDefinedServices();
-            //services.AddAutoMapperServices();
+            services.AddDbContextServices();
+            services.AddIdentityDbContextServices();
+            services.AddAutoMapperServices();
             services.ConfigureInValidResponseServices();
-            //services.AddRedisServices(configuration);
+            services.AddRedisServices(configuration);
 
-            
 
             return services;
         }
@@ -40,9 +49,13 @@ namespace HotelBookingPlatform.APIs.Extensions
         private static IServiceCollection AddUserDefinedServices(this IServiceCollection services)
         {
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            services.AddScoped(typeof(IUnitOfWork), typeof(InMemoryUnitOfWork));
-            services.AddScoped(typeof(IUserService), typeof(UserService));
-  
+            services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
+            services.AddScoped(typeof(ITokenService), typeof(TokenService));
+            services.AddScoped(typeof(IHotelSevice), typeof(HotelService));
+            services.AddScoped(typeof(IRoomService), typeof(RoomService));
+            services.AddScoped(typeof(IBookingService), typeof(BookingService));
+            services.AddScoped<IResponseCacheService, ResponseCacheService>();
+
             return services;
         }
         private static IServiceCollection ConfigureInValidResponseServices(this IServiceCollection services)
@@ -66,6 +79,42 @@ namespace HotelBookingPlatform.APIs.Extensions
 
             return services;
         }
+        private static IServiceCollection AddIdentityDbContextServices(this IServiceCollection services)
+        {
+            var identityConnectionString = Environment.GetEnvironmentVariable("IDENTITY_CONNECTION_STRING");
+
+            services.AddDbContext<AppIdentityDbContext>(options => options.UseSqlServer(identityConnectionString));
+
+            return services;
+        }
+
+        private static IServiceCollection AddDbContextServices(this IServiceCollection services)
+        {
+            var businessConnectionString = Environment.GetEnvironmentVariable("BUSINESS_CONNECTION_STRING");
+
+
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(businessConnectionString));
+
+            return services;
+        }
+        private static IServiceCollection AddRedisServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSingleton<IConnectionMultiplexer>(s =>
+            {
+                var connectionString = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING");
+                return ConnectionMultiplexer.Connect(connectionString);
+            });
+            return services;
+        }
+
+        private static IServiceCollection AddAutoMapperServices(this IServiceCollection services)
+        {
+            services.AddAutoMapper(typeof(MappingProfiles));
+
+            return services;
+        }
+
 
     }
 }

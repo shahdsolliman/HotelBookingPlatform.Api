@@ -1,5 +1,9 @@
 ﻿using HotelBookingPlatform.Core.Entities;
+using HotelBookingPlatform.Core.Entities.Business;
 using HotelBookingPlatform.Core.Repositories.Contract;
+using HotelBookingPlatform.Core.Specifications;
+using HotelBookingPlatform.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,38 +15,38 @@ namespace HotelBookingPlatform.Infrastructure
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
-        // In-memory data store using thread-safe dictionary
-        private static readonly ConcurrentDictionary<Guid, T> _store = new();
+        private readonly AppDbContext _dbContext;
 
-        public Task<IEnumerable<T>> GetAllAsync()
+        public GenericRepository(AppDbContext dbContext)
         {
-            return Task.FromResult(_store.Values.AsEnumerable());
+            _dbContext = dbContext;
+        }
+        public async Task<IReadOnlyList<T>> GetAllAsync()
+        {
+            return await _dbContext.Set<T>().ToListAsync();
+        }
+        public async Task<IReadOnlyList<T>> GetAsyncWithSpec(ISpecifications<T> spec)
+        {
+            return await ApplySpecifications(spec).AsNoTracking().ToListAsync();
+        }
+        public async Task<T?> GetByIdAsync(Guid id)
+        {
+            return await _dbContext.Set<T>().FindAsync(id);
         }
 
-        public Task<T?> GetByIdAsync(Guid id)
-        {
-            _store.TryGetValue(id, out var entity);
-            return Task.FromResult(entity);
-        }
+        public async Task AddAsync(T entity)
+            => await _dbContext.Set<T>().AddAsync(entity);
 
-        public Task AddAsync(T entity)
-        {
-            entity.Id = Guid.NewGuid(); // Ensure the entity has a unique Id
-            _store[entity.Id] = entity;
-            return Task.CompletedTask;
-        }
-        public Task<bool> UpdateAsync(T entity)
-        {
-            if (!_store.ContainsKey(entity.Id))
-                return Task.FromResult(false);
+        public void Delete(T entity)
+            => _dbContext.Set<T>().Remove(entity);
 
-            _store[entity.Id] = entity;
-            return Task.FromResult(true);
-        }
+        public void Update(T entity)
+            => _dbContext.Set<T>().Update(entity);
 
-        public Task<bool> DeleteAsync(Guid id)
+        private IQueryable<T> ApplySpecifications(ISpecifications<T> spec)
         {
-            return Task.FromResult(_store.TryRemove(id, out _));
+            return SpecificationsEvaluator<T>.GetQuery(_dbContext.Set<T>(), spec);
+
         }
 
     }
