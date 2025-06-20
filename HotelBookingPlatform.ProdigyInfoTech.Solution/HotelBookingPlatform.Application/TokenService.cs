@@ -14,7 +14,7 @@ namespace HotelBookingPlatform.Application
 {
     public class TokenService : ITokenService
     {
-        public async Task<string> CreateToken(AppUser user, UserManager<AppUser> userManager)
+        public async Task<string> CreateToken(AppUsers user, UserManager<AppUsers> userManager)
         {
             // 1. Header  --> security algorithm (e.g., HS256) , type of token (JWT)
             // 2. Payload --> 1. Registered claims (iss, sub, aud, exp, iat), 2. Private claims (custom data)

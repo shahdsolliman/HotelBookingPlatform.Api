@@ -11,7 +11,7 @@ namespace HotelBookingPlatform.APIs.Extensions
     {
         public static IServiceCollection AddIdentityServices(this IServiceCollection services)
         {
-            services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>
+            services.AddIdentity<AppUsers, IdentityRole<Guid>>(options =>
             {
                 options.Password.RequiredLength = 8;
                 options.Password.RequireDigit = true;

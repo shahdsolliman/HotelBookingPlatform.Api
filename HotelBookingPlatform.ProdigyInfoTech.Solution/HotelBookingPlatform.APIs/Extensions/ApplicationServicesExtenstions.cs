@@ -1,11 +1,12 @@
-﻿using HotelBookingPlatform.Application;
-using HotelBookingPlatform.Application.Services;
+﻿using HotelBookingPlatform.APIs.Helpers;
+using HotelBookingPlatform.Application;
 using HotelBookingPlatform.Core;
 using HotelBookingPlatform.Core.Entities.Identity;
 using HotelBookingPlatform.Core.Repositories.Contract;
 using HotelBookingPlatform.Core.Services.Contract;
 using HotelBookingPlatform.Infrastructure;
 using HotelBookingPlatform.Infrastructure.Data;
+using HotelBookingPlatform.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,8 @@ namespace HotelBookingPlatform.APIs.Extensions
             services.AddSwaggerServices();
             services.AddUserDefinedServices();
             services.AddDbContextServices();
-            //services.AddAutoMapperServices();
+            services.AddIdentityDbContextServices();
+            services.AddAutoMapperServices();
             services.ConfigureInValidResponseServices();
             services.AddRedisServices(configuration);
 
@@ -49,6 +51,9 @@ namespace HotelBookingPlatform.APIs.Extensions
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
             services.AddScoped(typeof(ITokenService), typeof(TokenService));
+            services.AddScoped(typeof(IHotelSevice), typeof(HotelService));
+            services.AddScoped(typeof(IRoomService), typeof(RoomService));
+            services.AddScoped(typeof(IBookingService), typeof(BookingService));
             services.AddScoped<IResponseCacheService, ResponseCacheService>();
 
             return services;
@@ -74,12 +79,22 @@ namespace HotelBookingPlatform.APIs.Extensions
 
             return services;
         }
+        private static IServiceCollection AddIdentityDbContextServices(this IServiceCollection services)
+        {
+            var identityConnectionString = Environment.GetEnvironmentVariable("IDENTITY_CONNECTION_STRING");
+
+            services.AddDbContext<AppIdentityDbContext>(options => options.UseSqlServer(identityConnectionString));
+
+            return services;
+        }
+
         private static IServiceCollection AddDbContextServices(this IServiceCollection services)
         {
-            var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+            var businessConnectionString = Environment.GetEnvironmentVariable("BUSINESS_CONNECTION_STRING");
+
 
             services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(connectionString));
+                options.UseSqlServer(businessConnectionString));
 
             return services;
         }
@@ -92,6 +107,14 @@ namespace HotelBookingPlatform.APIs.Extensions
             });
             return services;
         }
+
+        private static IServiceCollection AddAutoMapperServices(this IServiceCollection services)
+        {
+            services.AddAutoMapper(typeof(MappingProfiles));
+
+            return services;
+        }
+
 
     }
 }

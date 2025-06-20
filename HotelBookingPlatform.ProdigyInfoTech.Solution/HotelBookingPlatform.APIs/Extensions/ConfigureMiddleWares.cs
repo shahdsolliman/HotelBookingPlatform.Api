@@ -1,6 +1,7 @@
 ﻿using HotelBookingPlatform.APIs.MiddleWares;
 using HotelBookingPlatform.Core.Entities.Identity;
 using HotelBookingPlatform.Infrastructure.Data;
+using HotelBookingPlatform.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,15 +19,15 @@ namespace HotelBookingPlatform.APIs.Extensions
 
             var loggerFactory = services.GetRequiredService<ILoggerFactory>();
             var _dbContext = services.GetRequiredService<AppDbContext>();
-            var userManager = services.GetRequiredService<UserManager<AppUser>>();
+            var userManager = services.GetRequiredService<UserManager<AppUsers>>();
+            var _identityContext = services.GetRequiredService<AppIdentityDbContext>();
 
 
             try
             {
                 await _dbContext.Database.MigrateAsync();
-                // await StoreContextSeed.SeedAsync(_dbContext);
-                await _dbContext.Database.MigrateAsync();
-                await AppIdentityDbContextSeed.SeedUsersAsync(userManager);
+                await AppDbContextSeeding.SeedAsync(_dbContext, userManager);
+                await _identityContext.Database.MigrateAsync();
             }
             catch (Exception ex)
             {

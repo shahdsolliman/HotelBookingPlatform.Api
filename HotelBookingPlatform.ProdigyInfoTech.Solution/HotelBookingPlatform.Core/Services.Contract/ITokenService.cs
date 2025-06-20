@@ -10,6 +10,6 @@ namespace HotelBookingPlatform.Core.Services.Contract
 {
     public interface ITokenService
     {
-        Task<string> CreateToken(AppUser user, UserManager<AppUser> userManager);
+        Task<string> CreateToken(AppUsers user, UserManager<AppUsers> userManager);
     }
 }

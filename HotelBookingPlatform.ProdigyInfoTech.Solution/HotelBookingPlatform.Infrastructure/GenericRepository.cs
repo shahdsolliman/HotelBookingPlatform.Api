@@ -1,5 +1,7 @@
 ﻿using HotelBookingPlatform.Core.Entities;
+using HotelBookingPlatform.Core.Entities.Business;
 using HotelBookingPlatform.Core.Repositories.Contract;
+using HotelBookingPlatform.Core.Specifications;
 using HotelBookingPlatform.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -23,7 +25,10 @@ namespace HotelBookingPlatform.Infrastructure
         {
             return await _dbContext.Set<T>().ToListAsync();
         }
-
+        public async Task<IReadOnlyList<T>> GetAsyncWithSpec(ISpecifications<T> spec)
+        {
+            return await ApplySpecifications(spec).AsNoTracking().ToListAsync();
+        }
         public async Task<T?> GetByIdAsync(Guid id)
         {
             return await _dbContext.Set<T>().FindAsync(id);
@@ -37,5 +42,12 @@ namespace HotelBookingPlatform.Infrastructure
 
         public void Update(T entity)
             => _dbContext.Set<T>().Update(entity);
+
+        private IQueryable<T> ApplySpecifications(ISpecifications<T> spec)
+        {
+            return SpecificationsEvaluator<T>.GetQuery(_dbContext.Set<T>(), spec);
+
+        }
+
     }
 }

@@ -13,11 +13,11 @@ namespace HotelBookingPlatform.APIs.Controllers
 {
     public class AccountController : BaseAPIController
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUsers> _userManager;
+        private readonly SignInManager<AppUsers> _signInManager;
         private readonly ITokenService _tokenService;
 
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenService tokenService)
+        public AccountController(UserManager<AppUsers> userManager, SignInManager<AppUsers> signInManager, ITokenService tokenService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -46,7 +46,7 @@ namespace HotelBookingPlatform.APIs.Controllers
         [HttpPost("register")] //POST: api/account/register
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
-            var user = new AppUser()
+            var user = new AppUsers()
             {
                 DisplayName = registerDto.DisplayName,
                 UserName = registerDto.Email,

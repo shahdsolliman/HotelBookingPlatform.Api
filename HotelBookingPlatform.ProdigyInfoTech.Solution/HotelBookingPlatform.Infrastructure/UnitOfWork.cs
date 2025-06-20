@@ -1,5 +1,6 @@
 ﻿using HotelBookingPlatform.Core;
 using HotelBookingPlatform.Core.Entities;
+using HotelBookingPlatform.Core.Entities.Business;
 using HotelBookingPlatform.Core.Repositories.Contract;
 using HotelBookingPlatform.Infrastructure.Data;
 using System;
