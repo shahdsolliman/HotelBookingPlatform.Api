@@ -1,0 +1,22 @@
+﻿FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+WORKDIR /app
+
+COPY *.sln .
+COPY HotelBookingPlatform.Core/*.csproj ./HotelBookingPlatform.Core/
+COPY HotelBookingPlatform.Infrastructure/*.csproj ./HotelBookingPlatform.Infrastructure/
+COPY HotelBookingPlatform.API/*.csproj ./HotelBookingPlatform.API/
+
+RUN dotnet restore
+
+COPY . .
+
+RUN dotnet publish HotelBookingPlatform.API/HotelBookingPlatform.API.csproj -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
+WORKDIR /app
+
+COPY --from=build /app/publish .
+
+EXPOSE 80
+
+ENTRYPOINT ["dotnet", "HotelBookingPlatform.API.dll"]
