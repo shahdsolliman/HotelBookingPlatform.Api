@@ -21,6 +21,7 @@ namespace HotelBookingPlatform.APIs.Controllers
             _mapper = mapper;
         }
 
+        [Authorize]
         [HttpPost]   //POST: api/bookings
         [ProducesResponseType(typeof(BookingToReturnDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]

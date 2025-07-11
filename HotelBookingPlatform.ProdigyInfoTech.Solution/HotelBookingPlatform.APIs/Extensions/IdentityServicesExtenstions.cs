@@ -1,5 +1,6 @@
 ﻿using HotelBookingPlatform.Core.Entities.Identity;
 using HotelBookingPlatform.Infrastructure.Data;
+using HotelBookingPlatform.Infrastructure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -19,7 +20,8 @@ namespace HotelBookingPlatform.APIs.Extensions
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
             })
-            .AddEntityFrameworkStores<AppDbContext>();
+            .AddEntityFrameworkStores<AppIdentityDbContext>()
+            .AddDefaultTokenProviders();
 
             services.AddAuthentication(options =>
             {
